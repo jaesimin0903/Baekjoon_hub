@@ -1,26 +1,34 @@
 #include <iostream>
+#include <vector>
+#include <algorithm>
+#include <limits.h>
+#include <deque>
+#include<queue>
+#include<string>
+#include<stack>
+#include <tuple>
 #include <cmath>
 using namespace std;
-int n, r, c;
-int ans = 0;
-void dc(int x, int y, int size) {
-    if (c == x && r == y) { // 찾으려는 열과 행이 일치하면 
-        cout << ans;
-        return;
-    }
-    else if (c < x + size && r < y + size && c >= x && r >= y) {
-        //찾으려는 열과 행이 4분면안에 있을 경우
-        dc(x, y, size / 2);
-        dc(x + size / 2, y, size / 2);
-        dc(x, y + size / 2, size / 2);
-        dc(x + size / 2, y + size / 2, size / 2);
-    }
-    else { // 없다면 숫자 카운트 -> 정사각형 넓이
-        ans += size * size;
-    }
+
+stack<int>s1, s2, s3;
+
+int N, M, K;
+int r, c;
+
+
+int func(int n, int r, int c) {
+    if (n == 0) return 0;
+    int half = 1 << (n - 1);
+    if (r < half && c < half) return func(n - 1, r, c);
+    if (r < half && c >= half) return half * half + func(n - 1, r, c - half);
+    if (r >= half && c < half) return 2 * half * half + func(n - 1, r - half, c);
+    return 3 * half * half + func(n - 1, r - half, c - half);
 }
-int main() {
+
+int main(void) {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n, r, c;
     cin >> n >> r >> c;
-    dc(0, 0, pow(2, n));
-    return 0;
+    cout << func(n, r, c);
 }
