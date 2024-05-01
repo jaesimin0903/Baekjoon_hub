@@ -42,11 +42,19 @@ int main() {
         if (flag && str[i] == start_char) answer++;
         else if (!flag && str[i] != start_char) flag = true;
     }
+    int part = 0;
+
+    for (int i = 0; i < N; i++) {
+        if (i == 0) flag = false;
+        if (flag && str[i] == str[0]) part++;
+        else if (!flag && str[i] != str[0]) flag = true;
+    }
+    answer = min(part, answer);
 
     if (start_char == 'R') start_char = 'B';
     else start_char = 'R';
 
-    int part = 0;
+    part = 0;
 
     for (int i = N - 1; i >= 0; i--) {
         if (i == N - 1) flag = false;
@@ -54,8 +62,15 @@ int main() {
         if (flag && str[i] == start_char) part++;
         else if (!flag && str[i] != start_char) flag = true;
     }
-
     answer = min(part, answer);
+    part = 0;
+    for (int i = 0; i < N; i++) {
+        if (i == 0) flag = false;
+        if (flag && str[i] != str[0]) part++;
+        else if (!flag && str[i] == str[0]) flag = true;
+    }
+    answer = min(part, answer);
+
     cout << answer;
     
     return 0;
