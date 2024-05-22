@@ -1,115 +1,55 @@
 #include <iostream>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <cmath>
 #include <queue>
+#include <algorithm>
+#include <unordered_map>
+typedef long long ll;
 using namespace std;
 
-queue<pair<int, int>> q;
+int N, M;
 
-int N, M,H;
+unordered_map<int, int>um;
 
-string ans = "";
+int binarySearch(vector<int>& A, int x, int left, int right) {
+    if (left > right) {
+        return false;
+    }
 
+    int mid = left + (right - left) / 2;
 
-int LCS(string s1, string s2,string s3) {
-	int s1L = s1.length();
-	int s2L = s2.length();
-	int s3L = s3.length();
-
-	//vector<vector<int>> dp(s1L+1, vector<int>(s2L+1, 0));
-	//vector<vector<int>> a(s1L + 1, vector<int>(s2L + 1, 0));
-
-	vector<vector<vector<int>>> dp(s1L + 1, vector<vector<int>>(s2L + 1, vector<int>(s3L + 1, 0)));
-	
-
-	//for (int i = 1; i <= s1L; i++) {
-	//	for (int j = 1; j <= s2L; j++) {
-	//		if (s1[i-1] == s2[j-1]) {
-	//			dp[i][j] = dp[i - 1][j - 1]+1;
-	//			a[i][j] = 1;
-	//		}
-	//		else {
-	//			dp[i][j] = max(dp[i - 1][j],dp[i][j-1]);
-	//			if (dp[i - 1][j] > dp[i][j - 1]) {
-	//				a[i][j] = 2;
-	//			}
-	//			else {
-	//				a[i][j] = 3;
-	//			}
-	//		}
-	//	}
-	//}
-
-	for (int i = 1; i <= s1L; i++) {
-		for (int j = 1; j <= s2L; j++) {
-			for (int k = 1; k <= s3L; k++) {
-				if (s1[i - 1] == s2[j - 1] && s2[j - 1] == s3[k - 1]) {
-					dp[i][j][k] = dp[i - 1][j - 1][k - 1] + 1;
-				}
-				else {
-					dp[i][j][k] = max(dp[i - 1][j][k], max(dp[i][j - 1][k], dp[i][j][k - 1]));
-				}
-			}
-		}
-	}
-
-	//getLCS(a, s1L, s2L, s2);
-	//string rans = "";
-	//for (int i = ans.size() - 1; i >= 0; i--) {
-	//	rans += ans[i];
-	//}
-	//ans = rans;
-
-	return dp[s1L ][s2L ][s3L];
+    if (A[mid] == x) {
+        return mid;
+    }
+    else if (A[mid] > x) {
+        return binarySearch(A, x, left, mid - 1);
+    }
+    else {
+        return binarySearch(A, x, mid + 1, right);
+    }
 }
 
-#include <unordered_map>
 int main() {
-	int N;
-	cin >> N;
+    
+    cin >> N;
+    vector<int> v;
+    vector<int> s;
+    for (int i = 0; i < N; i++) {
+        int n1;
+        cin >> n1;
+        v.push_back(n1);
+        s.push_back(n1);
+    }
 
-	vector<int> v;
-	for (int i = 0; i < N; i++) {
-		int num;
-		cin >> num;
-		v.push_back(num);
-	}
+    sort(v.begin(), v.end());
 
-	vector<int> copied = v;
+    v.erase(unique(v.begin(), v.end()),v.end());
 
-	sort(copied.begin(), copied.end());
+    for (int i = 0; i < N;i++) {
+        cout << binarySearch(v, s[i], 0, v.size()-1) << " ";
+    }
 
-	int t = -1;
-	int idx = 0;
-	int cur = 0;
-
-
-	unordered_map<int, int> ans;
-	while (idx < N) {
-
-		if (cur != copied[idx]) {
-			t++;
-			ans[copied[idx]] = t;
-			cur = copied[idx];
-			idx++;
-			
-		}
-		else {
-			ans[copied[idx]] = t;
-			cur = copied[idx];
-			idx++;
-		}
-	}
-
-	for (int i = 0; i < N; i++) {
-		v[i] = ans[v[i]];
-	}
-
-	for (int i = 0; i < N; i++) {
-		cout << v[i] << " ";
-	}
-
-	return 0;
+    return 0;
 }
+//0 1 2 3 4 
+// mid = 2
+// mid = 3
