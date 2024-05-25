@@ -4,8 +4,8 @@
 #include <vector>
 using namespace std;
 
-int dy[4] = { -1, 1, 0, 0 };
-int dx[4] = { 0, 0, -1, 1 };
+int dy[4] = { 0, 1, 0, -1 };
+int dx[4] = { 1, 0, -1, 0 };
 
 int R, C;
 
@@ -24,8 +24,7 @@ void unite(int x, int y) {
     if (pa != pb) { // pa와 pb가 다를 때만 합침
         if (pa < pb) {
             parent[pb] = pa;
-        }
-        else {
+        } else {
             parent[pa] = pb;
         }
     }
@@ -39,11 +38,6 @@ bool check(int ny, int nx) {
     return (ny < 0 || nx < 0 || ny >= R || nx >= C);
 }
 
-struct Node {
-    int r, c;
-    Node(int r, int c) : r(r), c(c) {}
-};
-
 int main() {
     cin >> R >> C;
 
@@ -51,32 +45,32 @@ int main() {
         parent[i] = i;
     }
 
-    vector<Node> bird;
+    vector<pair<int, int>> bird;
     for (int i = 0; i < R; i++) {
         string str;
         cin >> str;
         m.push_back(str);
         for (int j = 0; j < str.size(); j++) {
-            if (str[j] == 'L') {
-                bird.push_back(Node(i, j));
-                m[i][j] = '.'; // 백조의 위치도 물로 간주
-            }
+            if (str[j] == 'L') bird.push_back({ i, j });
         }
     }
 
-    queue<Node> water, next_water;
+    queue<pair<int, int>> water;
+    queue<pair<int, int>> next_water;
 
-    // 처음 시작전 부모 초기화 및 물 위치 초기화
+    // 초기 물 위치 및 Union-Find 초기화
     for (int i = 0; i < R; i++) {
         for (int j = 0; j < C; j++) {
-            if (m[i][j] == '.') {
-                water.push(Node(i, j));
+            if (m[i][j] == '.' || m[i][j] == 'L') {
                 for (int d = 0; d < 4; d++) {
                     int ni = i + dx[d];
                     int nj = j + dy[d];
                     if (check(ni, nj)) continue;
-                    if (m[ni][nj] == '.') {
+                    if (m[ni][nj] == '.' || m[ni][nj] == 'L') {
                         unite(i * C + j, ni * C + nj);
+                    } else if (m[ni][nj] == 'X' && !visited[ni][nj]) {
+                        water.push({ ni, nj });
+                        visited[ni][nj] = true;
                     }
                 }
             }
@@ -84,39 +78,39 @@ int main() {
     }
 
     int year = 0;
-    while (!is_same_parent(bird[0].r * C + bird[0].c, bird[1].r * C + bird[1].c)) {
+    while (true) {
+        if (is_same_parent(bird[0].first * C + bird[0].second, bird[1].first * C + bird[1].second)) {
+            cout << year << endl;
+            return 0;
+        }
+
         while (!water.empty()) {
-            Node current = water.front();
+            int y = water.front().first;
+            int x = water.front().second;
             water.pop();
+            m[y][x] = '.';
+
             for (int d = 0; d < 4; d++) {
-                int ni = current.r + dx[d];
-                int nj = current.c + dy[d];
-                if (check(ni, nj)) continue;
-                if (m[ni][nj] == 'X' && !visited[ni][nj]) {
-                    next_water.push(Node(ni, nj));
-                    visited[ni][nj] = true;
+                int ny = y + dy[d];
+                int nx = x + dx[d];
+                if (check(ny, nx)) continue;
+                if (m[ny][nx] == '.' || m[ny][nx] == 'L') {
+                    unite(y * C + x, ny * C + nx);
+                } else if (m[ny][nx] == 'X' && !visited[ny][nx]) {
+                    next_water.push({ ny, nx });
+                    visited[ny][nx] = true;
                 }
             }
         }
 
+        // 큐를 비우고 다음 해로 넘기기
+        water = next_water;
         while (!next_water.empty()) {
-            Node current = next_water.front();
             next_water.pop();
-            m[current.r][current.c] = '.';
-            water.push(current);
-            for (int d = 0; d < 4; d++) {
-                int ni = current.r + dx[d];
-                int nj = current.c + dy[d];
-                if (check(ni, nj)) continue;
-                if (m[ni][nj] == '.') {
-                    unite(current.r * C + current.c, ni * C + nj);
-                }
-            }
         }
 
         year++;
     }
 
-    cout << year << endl;
     return 0;
 }
