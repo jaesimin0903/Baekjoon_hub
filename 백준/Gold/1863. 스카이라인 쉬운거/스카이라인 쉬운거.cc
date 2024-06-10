@@ -8,21 +8,17 @@
 
 using namespace std;
 
-int arr[50010];
 
 int main() {
     int N;
     cin >> N;
-    fill(&arr[0], &arr[0] + 50010, -1);
+
     stack<int> s;
-    int top = 0;
+
     int ans = 0;
     for (int i = 0; i < N; i++) {
         int n1, n2;
-        if (i != N) {
-            cin >> n1 >> n2;
-        }
-        else n2 = 0;
+        cin >> n1 >> n2;
         if (s.empty()) {
             if(n2 != 0)s.push(n2);
         }
@@ -38,11 +34,10 @@ int main() {
                 s.push(n2);
             }
         }
-        //cout << ans << "\n";
+
     }
 
     while (!s.empty()) {
-        //cout << "not empty" << "\n";
        ans++;
         s.pop();
     }
