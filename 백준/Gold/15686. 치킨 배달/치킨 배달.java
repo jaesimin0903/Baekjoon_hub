@@ -1,50 +1,43 @@
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-	//0 빈칸 1집 2치킨집
 	
-	static int ans = Integer.MAX_VALUE;
-	static int N, M;
+	static int N, M, ans = Integer.MAX_VALUE;
 	static int[][] map;
-	static List<int[]> chicken;
-	static void dfs(int idx, int cnt, List<int[]> arr) {
-		if(arr.size() == M){
+	static List<int[]> houses;
+	static List<int[]> chickens;
+	static boolean[] selected;
+	
+	static void dfs(int idx, int cnt) {
+		if(cnt == M) {
 			int sum = 0;
-			for(int[] v : arr) {
-				//System.out.println(Arrays.toString(v));
-			}
-			for(int i =0 ;i<N;i++) {
-				for(int j =0;j<N;j++) {
-					if(map[i][j] == 1) {
-						int part = 99999999;
-						for(int k = 0;k<arr.size();k++) {
-							part = Math.min(part, Math.abs(i-arr.get(k)[0]) + Math.abs(j-arr.get(k)[1]));
-						}
-						//System.out.println(part);
-						sum+= part;
+			for(int h = 0;h<houses.size();h++) {
+				int part = Integer.MAX_VALUE;
+				for(int i = 0;i<chickens.size();i++) {
+					if(selected[i]) {
+						//System.out.print(i + " ");
+						part= Math.min(Math.abs(chickens.get(i)[0] - houses.get(h)[0]) + Math.abs(chickens.get(i)[1] - houses.get(h)[1]),part); 
 					}
-				}
+				}				
+				sum += part;
+				//System.out.println();
 			}
-			
 			ans = Math.min(ans, sum);
 			return ;
 		}
 		
-		for(int i = idx+1;i<chicken.size();i++) {
-			arr.add(chicken.get(i));
-			dfs(i,cnt+1,arr);
-			arr.remove(arr.size()-1);
+		for(int i = idx;i<chickens.size();i++) {
+			
+			if(selected[i]) continue;
+			selected[i] = true;
+			dfs(i, cnt+1);
+			selected[i] = false;
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
+	
+	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = null;
@@ -54,35 +47,24 @@ public class Main {
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
 		
-		 map = new int[N][N];
-		List<int[]> house = new ArrayList<>();
-		chicken = new ArrayList<>();
+		map = new int[N][N];
+		houses = new ArrayList<>();
+		chickens = new ArrayList<>();
+		
+		
 		for(int i =0;i<N;i++) {
 			st = new StringTokenizer(br.readLine());
 			for(int j =0;j<N;j++) {
 				map[i][j] = Integer.parseInt(st.nextToken());
-				if(map[i][j] == 1) {
-					int[] pair = new int[2];
-					pair[0] = i;
-					pair[1] = j;
-					house.add(pair);
-				}else if(map[i][j] == 2) {
-					int[] pair = new int[2];
-					pair[0] = i;
-					pair[1] = j;
-					chicken.add(pair);
-				}
+				if(map[i][j] == 1) houses.add(new int[] {i,j});
+				else if(map[i][j] == 2) chickens.add(new int[] {i,j});
 			}
 		}
 		
-		for(int i = 0;i+M <= chicken.size();i++) {
-			List<int[]> tmp = new ArrayList<>();
-			tmp.add(chicken.get(i));
-			dfs(i, 1,tmp);
-		}
+		selected = new boolean[chickens.size()];
+		dfs(0,0);
 		
-		sb.append(ans);
-		System.out.println(sb);
+		System.out.println(String.format("%d", ans));
 	}
 
 }
