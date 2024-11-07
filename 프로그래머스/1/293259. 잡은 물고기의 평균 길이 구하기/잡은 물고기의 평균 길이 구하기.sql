@@ -1,0 +1,2 @@
+SELECT round(AVG(IFNULL(LENGTH, 10)),2) AS average_length
+FROM FISH_INFO;
