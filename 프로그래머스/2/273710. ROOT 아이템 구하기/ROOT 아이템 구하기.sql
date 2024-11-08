@@ -1,6 +1,5 @@
 -- 코드를 작성해주세요
 -- SELECT * FROM ITEM_INFO
 
-SELECT A.ITEM_ID, B.ITEM_NAME 
-FROM ITEM_INFO AS B, ITEM_TREE AS A 
-WHERE A.PARENT_ITEM_ID IS NULL AND A.ITEM_ID = B.ITEM_ID
+select item_id ,item_name from item_info
+where item_id in (select item_id from item_tree where parent_item_id is null)
