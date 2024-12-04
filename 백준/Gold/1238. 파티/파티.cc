@@ -6,58 +6,57 @@
 using namespace std;
 
 int N, M, X;
-vector<vector<int>> graph;
-vector<vector<int>> dis;
+vector<pair<int,int>> graph[1010];
 
-void dijkstra(int start) {
-	// 우선순위 큐를 사용한 다익스트라 알고리즘 구현
-	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+void dijkstra() {
+	priority_queue < pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>>pq;
 
-	// 시작 노드로부터의 거리 초기화
-	dis[start][start] = 0;
-	pq.push({ 0, start });
+	int cost[1010][1010];
 
-	while (!pq.empty()) {
-		int cur = pq.top().second;
-		int cur_dist = pq.top().first;
-		pq.pop();
+	for (int i = 1; i <= N; i++) {
+		for (int j = 1; j <= N; j++) {
+			cost[i][j] = 1e9;
+		}
+	}
 
-		// 이미 더 짧은 경로가 있으면 스킵
-		if (cur_dist > dis[start][cur]) continue;
 
-		// 인접 노드들에 대해 최단 경로 업데이트
-		for (int i = 1; i <= N; i++) {
-			if (graph[cur][i] != 1e9 && dis[start][i] > dis[start][cur] + graph[cur][i]) {
-				dis[start][i] = dis[start][cur] + graph[cur][i];
-				pq.push({ dis[start][i], i });
+	for (int i = 1; i <= N; i++) {
+		cost[i][i] = 0;
+
+		pq.push({ 0,i });
+		while (!pq.empty()) {
+			int cur = pq.top().second;
+			int val = pq.top().first;
+			pq.pop();
+
+			for (int j = 0; j < graph[cur].size(); j++) {
+				int next = graph[cur][j].second;
+				int nextVal = graph[cur][j].first;
+				if (i != next && cost[i][next] > cost[i][cur] + nextVal) {
+					cost[i][next] = cost[i][cur] + nextVal;
+					pq.push({ cost[i][next], next });
+				}
 			}
 		}
 	}
+
+	int answer = 0;
+	for (int i = 1; i <= N; i++) {
+		answer = max(answer, cost[i][X] + cost[X][i]);
+	}
+	cout << answer;
 }
 
 int main() {
 	cin >> N >> M >> X;
 
-	// 그래프 및 거리 배열 초기화
-	graph.assign(N + 1, vector<int>(N + 1, 1e9));
-	dis.assign(N + 1, vector<int>(N + 1, 1e9));
-
 	for (int i = 0; i < M; i++) {
-		int s, e, t;
-		cin >> s >> e >> t;
-		graph[s][e] = t;  // 간선 입력
+		int s, e, c;
+		cin >> s >> e >> c;
+		graph[s].push_back({ c,e });
 	}
 
-	// 각 노드에서 다익스트라 실행
-	for (int i = 1; i <= N; i++) dijkstra(i);
+	dijkstra();
 
-	// 최대 왕복 거리 계산
-	int ans = 0;
-	for (int i = 1; i <= N; i++) {
-		ans = max(ans, dis[i][X] + dis[X][i]);
-	}
-
-	// 결과 출력
-	cout << ans;
 	return 0;
 }
